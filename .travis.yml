@@ -1,0 +1,22 @@
+sudo: false
+
+jobs:
+  include:
+    - stage: staging
+      if: branch = master AND tag IS blank
+      script:
+        - docker build -t allovince/ariang .
+        - docker tag allovince/ariang allovince/ariang:staging
+        - docker images
+        - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+        - docker push allovince/ariang:staging;
+    - stage: docker release
+      if: tag IS present
+      script:
+        - docker build -t allovince/ariang .
+        - docker tag allovince/ariang allovince/ariang:$TRAVIS_TAG
+        - docker images
+        - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
+        - docker push allovince/ariang:latest;
+        - docker push allovince/ariang:$TRAVIS_TAG;
+
